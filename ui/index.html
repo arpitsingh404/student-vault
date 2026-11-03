@@ -1,0 +1,740 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#EDE6F9" />
+<meta name="description" content="Student Vault is an encrypted, local-first student document vault with reminders, job application tracking and a vault-aware assistant." />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; frame-src 'none'" />
+<title>Student Vault</title>
+<link rel="stylesheet" href="styles.css?v=2.8" />
+</head>
+<body>
+<div class="phone">
+  <div class="app">
+
+    <div class="statusbar">
+      <span id="clock">9:41</span>
+      <span class="icons">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 17h3v4H2zm5-4h3v8H7zm5-5h3v13h-3zm5-5h3v18h-3z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 9l10-6 10 6v3H2z"/><path d="M4 13h16v8H4z" opacity=".45"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="3" width="10" height="18" rx="2.5"/></svg>
+      </span>
+    </div>
+
+    <div class="topbar">
+      <div class="who">
+        <div class="avatar" id="topAvatar" data-go="profile">SV</div>
+        <div style="min-width:0">
+          <p class="hello" id="helloText">Welcome</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="iconbtn" data-go="vault" aria-label="Search vault">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+        <button class="iconbtn" id="menuBtn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <span class="saving" id="saveState">Saving</span>
+
+    <main>
+      <section class="screen active" data-screen="home">
+        <h1 class="display" id="helloName">Your vault</h1>
+
+        <div class="chips" id="homeChips" style="margin-top:14px">
+          <button class="chip active" data-cat="All">All</button>
+          <button class="chip" data-cat="Marksheets">Marksheets</button>
+          <button class="chip" data-cat="Certificates">Certificates</button>
+          <button class="chip" data-cat="Photos">Photos</button>
+          <button class="chip" data-cat="ID Cards">ID Cards</button>
+        </div>
+
+        <div class="due-banner" id="dueBanner">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+          <span id="dueBannerText"></span>
+        </div>
+
+        <div class="feature glass">
+          <span class="glow"></span><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span>
+          <div class="feature-top">
+            <div>
+              <span class="tag">Vault security</span>
+              <h2>Encrypted<br>on device</h2>
+              <span class="badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                Locked · AES-256-GCM
+              </span>
+            </div>
+            <div class="feature-side">
+              <div class="ring">
+                <svg width="68" height="68" viewBox="0 0 68 68">
+                  <circle class="track" cx="34" cy="34" r="28"></circle>
+                  <circle class="bar" id="securityRing" cx="34" cy="34" r="28"></circle>
+                </svg>
+                <b id="securityPct">100%</b>
+              </div>
+              <span class="mini-note" id="backupNote">local<br>vault</span>
+            </div>
+          </div>
+          <div class="feature-foot">
+            <div class="metric"><b id="statDocs">0</b><span>documents</span></div>
+            <div class="vdiv"></div>
+            <div class="metric"><b id="statBytes">0 B</b><span>encrypted</span></div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="mini blush" data-go="reminders">
+            <span class="spark"></span>
+            <span class="tag">This week</span>
+            <b class="big" id="statRem">0</b>
+            <span class="sub">reminders due</span>
+          </div>
+          <div class="mini mint" data-go="jobs">
+            <span class="spark"></span>
+            <span class="tag">Applications</span>
+            <b class="big" id="statJobs">0</b>
+            <span class="sub">in progress</span>
+          </div>
+        </div>
+
+        <div class="section-head"><h3>Quick actions</h3></div>
+        <div class="quick">
+          <button class="qa" data-action="new-doc">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            Add file
+          </button>
+          <button class="qa amber" data-action="new-reminder">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg></span>
+            Reminder
+          </button>
+          <button class="qa green" data-action="new-job">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg></span>
+            Add job
+          </button>
+          <button class="qa rose" data-go="chat">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 18-5z"/></svg></span>
+            Ask AI
+          </button>
+        </div>
+
+        <div class="section-head"><h3>Recent files</h3><a href="#" data-go="vault">See all</a></div>
+        <div class="list" id="recentList"></div>
+
+        <div class="section-head"><h3>Recent activity</h3><span class="section-count" id="activityCount"></span></div>
+        <div class="activity-list glass" id="activityList"></div>
+
+        <div class="section-head"><h3>Upcoming reminders</h3><a href="#" data-go="reminders">See all</a></div>
+        <div class="list" id="homeReminders"></div>
+      </section>
+
+      <section class="screen" data-screen="vault">
+        <div class="row-between" style="margin-bottom:12px">
+          <h1 class="display" id="vaultTitle" style="font-size:26px;margin:0">Documents</h1>
+          <span class="section-count" id="vaultCount">0 files</span>
+        </div>
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="vaultSearch" placeholder="Search in your vault…" autocomplete="off" />
+        </div>
+        <div class="chips" id="vaultChips">
+          <button class="chip active" data-cat="All">All</button>
+          <button class="chip" data-cat="Marksheets">Marksheets</button>
+          <button class="chip" data-cat="Certificates">Certificates</button>
+          <button class="chip" data-cat="Photos">Photos</button>
+          <button class="chip" data-cat="ID Cards">ID Cards</button>
+          <button class="chip" data-cat="Documents">Documents</button>
+        </div>
+        <div class="list" id="vaultList"></div>
+        <div class="empty-state" id="vaultEmpty" style="display:none"><b>No documents found</b>Change the search or category, or add your first file.</div>
+      </section>
+
+      <section class="screen" data-screen="reminders">
+        <div class="row-between" style="margin-bottom:12px">
+          <h1 class="display" style="font-size:26px;margin:0">Reminders</h1>
+          <span class="section-count" id="remCount">0 open</span>
+        </div>
+
+        <div class="progress-card glass">
+          <div class="row">
+            <b>This week</b>
+            <span id="remProgressText">0 of 0 done</span>
+          </div>
+          <div class="track"><i id="remProgressBar" style="width:0%"></i></div>
+        </div>
+
+        <div class="week glass" id="weekStrip"></div>
+
+        <div class="section-head"><h3 id="dayHeading">Today</h3><span class="pill warn" id="todayDue">0 due</span></div>
+        <div class="list" id="todayList" style="margin-bottom:14px"></div>
+
+        <div class="section-head"><h3>Upcoming</h3></div>
+        <div class="list" id="upcomingList"></div>
+
+        <div id="completedSection" style="display:none">
+          <div class="section-head"><h3>Completed</h3></div>
+          <div class="list" id="completedList"></div>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="jobs">
+        <div class="row-between" style="margin-bottom:4px">
+          <h1 class="display" style="font-size:26px;margin:0">Applications</h1>
+          <span class="section-count" id="jobCount">0 total</span>
+        </div>
+        <p style="margin:0 0 16px;font-size:11.5px;font-weight:500;color:var(--muted)">Offers, interviews and status in one place</p>
+
+        <div class="chips" id="jobChips">
+          <button class="chip active" data-status="All">All</button>
+          <button class="chip" data-status="Applied">Applied</button>
+          <button class="chip" data-status="Shortlisted">Shortlisted</button>
+          <button class="chip" data-status="Interview">Interview</button>
+          <button class="chip" data-status="Offer">Offer</button>
+          <button class="chip" data-status="Rejected">Rejected</button>
+        </div>
+
+        <div id="jobsList"></div>
+        <div class="empty-state" id="jobsEmpty" style="display:none"><b>No applications yet</b>Add a job to start tracking interviews and offers.</div>
+      </section>
+
+      <section class="screen" data-screen="chat">
+        <div class="suggest" id="chatSuggestions">
+          <button data-ask="What documents are in my vault?">My documents</button>
+          <button data-ask="Which reminders are due?">Due reminders</button>
+          <button data-ask="Summarise my job applications">Job summary</button>
+          <button data-ask="How much storage am I using?">Storage</button>
+        </div>
+        <div class="chatwrap" id="chatWrap">
+          <div class="chat-hero">
+            <span class="orb2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.8 4.6L18 9.4l-4.2 1.8L12 16l-1.8-4.8L6 9.4l4.2-1.8z"/><path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></span>
+            <b>Student Vault Assistant</b>
+            <span>Ask about your documents, reminders and applications.</span>
+          </div>
+          <div class="chat-status local" id="chatStatus"><i></i><span>On-device assistant</span></div>
+          <div id="chatMessages"></div>
+        </div>
+        <div class="chat-input">
+          <input id="chatText" placeholder="Message Student Vault…" autocomplete="off" maxlength="2000" />
+          <button class="send" id="sendBtn" aria-label="Send message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="profile">
+        <h1 class="display" style="font-size:26px;margin-bottom:10px">Account</h1>
+
+        <div class="profile-card glass" id="editProfileRow" role="button" tabindex="0">
+          <div class="big" id="profileAvatar">SV</div>
+          <div style="min-width:0">
+            <h4 id="profileName">Student</h4>
+            <p id="profileMeta">Add your course and university</p>
+            <p id="profileEmail" style="font-size:10px"></p>
+          </div>
+          <span class="chev" style="margin-left:auto">›</span>
+        </div>
+
+        <div class="storage glass">
+          <div class="row"><b>Storage</b><span id="storageUsed">0 B used</span></div>
+          <div class="track"><i id="storageBar" style="width:0%"></i></div>
+        </div>
+
+        <div class="settings glass">
+          <div class="setting" id="serverRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 18a4 4 0 0 1 0-8 6 6 0 0 1 11.7-1.5A4.5 4.5 0 0 1 18 18z"/></svg></span>
+            <span class="grow">AI assistant<span class="sub-value">Optional server, keys stay off-device</span></span>
+            <span class="pill info" id="aiState">Local</span>
+          </div>
+          <div class="setting">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></span>
+            <span class="grow">Encryption<span class="sub-value">AES-256-GCM, key derived from PIN</span></span>
+            <span class="pill ok">Active</span>
+          </div>
+          <div class="setting" id="securityCenterRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <span class="grow">Security center<span class="sub-value">Protection status and device details</span></span>
+            <span class="pill info" id="securityState">Review</span>
+          </div>
+          <div class="setting">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></span>
+            <span class="grow">In-app reminders</span>
+            <label class="switch"><input type="checkbox" id="notifToggle" checked><span class="slider"></span></label>
+          </div>
+          <div class="setting">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+            <span class="grow">Auto-lock</span>
+            <select id="autoLockSelect" class="row-select" aria-label="Auto-lock timeout">
+              <option value="1">1 min</option>
+              <option value="5" selected>5 min</option>
+              <option value="15">15 min</option>
+              <option value="30">30 min</option>
+              <option value="0">Never</option>
+            </select>
+          </div>
+          <div class="setting">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></span>
+            <span class="grow">Dark mode</span>
+            <label class="switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></label>
+          </div>
+          <div class="setting" id="passkeyRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="3"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg></span>
+            <span class="grow">Passkey<span class="sub-value">Optional biometric quick unlock</span></span>
+            <span class="pill info" id="passkeyState">Not set</span>
+          </div>
+          <div class="setting" id="changePinRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+            <span class="grow">Change PIN</span>
+            <span class="chev">›</span>
+          </div>
+          <div class="setting" id="recoveryRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4z"/><path d="M8 7V5h8v2"/><path d="M9 13h6"/></svg></span>
+            <span class="grow">Recovery code<span class="sub-value">Required if you forget your PIN</span></span>
+            <span class="chev">›</span>
+          </div>
+          <div class="setting" id="backupRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></span>
+            <span class="grow">Vault file<span class="sub-value" id="backupState">Save a copy you control</span></span>
+            <span class="chev">›</span>
+          </div>
+          <div class="setting" id="clearChatRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 18-5z"/></svg></span>
+            <span class="grow">Clear assistant history</span>
+            <span class="chev">›</span>
+          </div>
+          <div class="setting" id="aboutRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>
+            <span class="grow">About</span>
+            <span class="chev">›</span>
+          </div>
+          <div class="setting danger" id="clearDataRow">
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></span>
+            <span class="grow">Erase all data</span>
+            <span class="chev">›</span>
+          </div>
+        </div>
+
+        <button class="danger-btn" id="lockBtn">Lock vault</button>
+      </section>
+    </main>
+
+    <button class="fab" id="fab" style="display:none" aria-label="Add item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    <nav class="tabbar" id="tabbar">
+      <span class="tab-pill" id="tabPill"></span>
+      <button class="tab active" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        Home
+      </button>
+      <button class="tab" data-tab="vault">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h6l2 2h10v10H3z"/></svg>
+        Vault
+      </button>
+      <button class="tab" data-tab="reminders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+        Reminders
+      </button>
+      <button class="tab" data-tab="jobs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg>
+        Jobs
+      </button>
+      <button class="tab" data-tab="chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 18-5z"/></svg>
+        Chat
+      </button>
+    </nav>
+
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <aside class="drawer" id="drawer">
+      <div class="drawer-head" id="drawerHead">
+        <div class="avatar" id="drawerAvatar">SV</div>
+        <div>
+          <b id="drawerName">Student</b>
+          <span id="drawerMeta">Local encrypted vault</span>
+        </div>
+      </div>
+
+      <nav class="drawer-nav">
+        <button class="drawer-item" data-drawer="home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+          Home
+        </button>
+        <button class="drawer-item" data-drawer="vault">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h6l2 2h10v10H3z"/></svg>
+          Vault
+        </button>
+        <button class="drawer-item" data-drawer="reminders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+          Reminders
+        </button>
+        <button class="drawer-item" data-drawer="jobs">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2"/></svg>
+          Jobs
+        </button>
+        <button class="drawer-item" data-drawer="chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 18-5z"/></svg>
+          Assistant
+        </button>
+        <button class="drawer-item" data-drawer="profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="3"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg>
+          Account
+        </button>
+      </nav>
+
+      <button class="drawer-item" id="deviceSecurity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+        Device security
+        <span class="drawer-badge" id="deviceState">On-device</span>
+      </button>
+      <div class="drawer-div"></div>
+
+      <button class="drawer-item danger" id="drawerLock">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Lock vault
+      </button>
+      <button class="drawer-item" id="drawerAbout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+        About
+      </button>
+
+      <div class="drawer-foot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        AES-256-GCM · local vault
+      </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <div class="sheet" id="docSheet">
+      <div class="grip"></div>
+      <h3 id="docTitle">Document</h3>
+      <div class="doc-meta-line" id="docMeta"></div>
+      <div class="preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div>
+      <div class="doc-notes" id="docNotes"></div>
+      <div class="sheet-actions">
+        <button class="sheet-btn primary" data-doc-action="open">Open</button>
+        <button class="sheet-btn" data-doc-action="download">Download</button>
+        <button class="sheet-btn" data-doc-action="rename">Rename</button>
+        <button class="sheet-btn" data-doc-action="convert">Convert</button>
+        <button class="sheet-btn" data-doc-action="delete" style="grid-column:1/-1;color:var(--danger)">Delete document</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="addDocSheet">
+      <div class="grip"></div>
+      <h3>Add document</h3>
+      <div class="sub">The file is encrypted before it is saved on this device.</div>
+      <label class="drop" for="docFile">Choose a PDF, image or TXT file</label>
+      <input type="file" id="docFile" accept="application/pdf,image/png,image/jpeg,image/webp,image/gif,text/plain" hidden />
+      <div class="doc-file" id="docFileName" style="display:none"></div>
+      <div class="field">
+        <label>Document name</label>
+        <input id="newDocName" placeholder="e.g. Sem-7 Marksheet" maxlength="120" />
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="newDocCat">
+          <option>Marksheets</option>
+          <option>Certificates</option>
+          <option>Photos</option>
+          <option>ID Cards</option>
+          <option>Documents</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Notes (optional)</label>
+        <input id="newDocNotes" placeholder="e.g. Issued 12 Sep 2026" maxlength="240" />
+      </div>
+      <button class="sheet-btn primary" style="width:100%;padding:14px" id="addDocBtn">Add to vault</button>
+    </div>
+
+    <div class="sheet" id="docEditSheet">
+      <div class="grip"></div>
+      <h3>Edit document</h3>
+      <div class="sub">Rename or update metadata. The file stays encrypted.</div>
+      <div class="field"><label>Name</label><input id="editDocName" maxlength="120" /></div>
+      <div class="field"><label>Category</label>
+        <select id="editDocCat">
+          <option>Marksheets</option><option>Certificates</option><option>Photos</option><option>ID Cards</option><option>Documents</option>
+        </select>
+      </div>
+      <div class="field"><label>Notes</label><input id="editDocNotes" maxlength="240" /></div>
+      <button class="sheet-btn primary" style="width:100%;padding:14px" id="saveDocBtn">Save changes</button>
+    </div>
+
+    <div class="sheet" id="reminderSheet">
+      <div class="grip"></div>
+      <h3 id="remSheetTitle">New reminder</h3>
+      <div class="sub">Exam form, fee date, result follow-up…</div>
+      <div class="field"><label>Reminder</label><input id="remTitle" placeholder="e.g. Sem-5 result follow up" maxlength="160" /></div>
+      <div class="field"><label>Due date</label><input id="remDate" type="date" /></div>
+      <div class="field"><label>Category</label>
+        <select id="remCat"><option>Exam</option><option>Fees</option><option>Documents</option><option>Placement</option><option>Personal</option></select>
+      </div>
+      <div class="field"><label>Notes (optional)</label><input id="remNotes" placeholder="Context or link" maxlength="240" /></div>
+      <button class="sheet-btn primary" style="width:100%;padding:14px" id="saveRemBtn">Save reminder</button>
+      <button class="sheet-btn" style="width:100%;padding:12px;margin-top:9px;color:var(--danger)" id="deleteRemBtn">Delete reminder</button>
+    </div>
+
+    <div class="sheet" id="jobSheet">
+      <div class="grip"></div>
+      <h3 id="jobSheetTitle">Add application</h3>
+      <div class="sub">Track every application from applied to offer.</div>
+      <div class="job-edit-grid">
+        <div class="field"><label>Company</label><input id="jobCompanyInput" maxlength="80" placeholder="e.g. Infosys" /></div>
+        <div class="field"><label>Role</label><input id="jobRoleInput" maxlength="100" placeholder="e.g. Systems Engineer" /></div>
+        <div class="field"><label>Applied on</label><input id="jobAppliedInput" type="date" /></div>
+        <div class="field"><label>Interview date</label><input id="jobInterviewInput" type="date" /></div>
+        <div class="field"><label>Location</label><input id="jobLocationInput" maxlength="80" placeholder="e.g. Noida" /></div>
+        <div class="field"><label>Job link</label><input id="jobLinkInput" type="url" maxlength="500" placeholder="https://…" /></div>
+        <div class="field full"><label>Notes</label><input id="jobNotesInput" maxlength="500" placeholder="Recruiter, referral, next step…" /></div>
+      </div>
+      <div class="field"><label>Status</label></div>
+      <div class="status-row job-status-row" id="jobStatusRow">
+        <button class="status-chip" data-status="Applied">Applied</button>
+        <button class="status-chip" data-status="Shortlisted">Shortlisted</button>
+        <button class="status-chip" data-status="Interview">Interview</button>
+        <button class="status-chip" data-status="Offer">Offer</button>
+        <button class="status-chip" data-status="Rejected">Rejected</button>
+      </div>
+      <button class="sheet-btn primary" style="width:100%;padding:14px" id="saveJobBtn">Save application</button>
+      <div class="sheet-actions" style="margin-top:9px">
+        <button class="sheet-btn" id="jobLinkBtn" style="display:none">Open job link</button>
+        <button class="sheet-btn" id="deleteJobBtn" style="color:var(--danger)">Delete</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="profileSheet">
+      <div class="grip"></div>
+      <h3>Edit profile</h3>
+      <div class="sub">Used for the greeting and account display.</div>
+      <div class="avatar-editor">
+        <div class="big avatar-preview" id="avatarPreview">SV</div>
+        <div class="avatar-actions">
+          <button class="sheet-btn primary" id="chooseAvatarBtn" type="button">Upload photo</button>
+          <button class="sheet-btn" id="removeAvatarBtn" type="button" style="color:var(--danger)">Remove</button>
+        </div>
+      </div>
+      <input type="file" id="avatarFile" accept="image/jpeg,image/png,image/webp" hidden />
+      <div class="field"><label>Full name</label><input id="profileNameInput" maxlength="80" /></div>
+      <div class="field"><label>Email (optional)</label><input id="profileEmailInput" type="email" maxlength="120" /></div>
+      <div class="field"><label>Course</label><input id="profileCourseInput" maxlength="80" placeholder="e.g. B.Tech CSE" /></div>
+      <div class="field"><label>University</label><input id="profileUniInput" maxlength="120" placeholder="e.g. J.S. University" /></div>
+      <button class="sheet-btn primary" style="width:100%;padding:14px" id="saveProfileBtn">Save profile</button>
+    </div>
+
+    <div class="sheet" id="pinSheet">
+      <div class="grip"></div>
+      <h3>Change PIN</h3>
+      <div class="sub">Your data is re-wrapped with the new key; documents are not re-uploaded.</div>
+      <div class="field"><label>Current PIN</label><input id="currentPin" type="password" inputmode="numeric" maxlength="6" class="pin-input" /></div>
+      <div class="field"><label>New 6-digit PIN</label><input id="newPin" type="password" inputmode="numeric" maxlength="6" class="pin-input" /></div>
+      <div class="field"><label>Confirm new PIN</label><input id="confirmPin" type="password" inputmode="numeric" maxlength="6" class="pin-input" /></div>
+      <div class="error-text" id="pinChangeErr"></div>
+      <button class="sheet-btn primary" style="width:100%;padding:14px" id="savePinBtn">Update PIN</button>
+    </div>
+
+    <div class="sheet" id="recoverySheet">
+      <div class="grip"></div>
+      <h3>Recovery code</h3>
+      <div class="sub">Keep this offline. Anyone with this code and your vault backup can recover the data.</div>
+      <div class="notice">This code is shown only for your records. It is stored locally as a wrapped key, never as plaintext.</div>
+      <div class="code-display" id="recoveryCode">—</div>
+      <div class="backup-actions">
+        <button class="sheet-btn" id="copyRecoveryBtn">Copy code</button>
+        <button class="sheet-btn" id="downloadRecoveryBtn">Save as text</button>
+      </div>
+      <button class="sheet-btn primary" style="width:100%;padding:12px;margin-top:9px" id="saveVaultAfterSetupBtn">Save encrypted vault file</button>
+      <button class="sheet-btn" style="width:100%;padding:12px;margin-top:9px" id="regenRecoveryBtn">Generate a new code</button>
+      <button class="sheet-btn" style="width:100%;padding:12px;margin-top:9px" id="recoveryDoneBtn">Done</button>
+    </div>
+
+    <div class="sheet" id="backupSheet">
+      <div class="grip"></div>
+      <h3>Vault file</h3>
+      <div class="sub">One encrypted file that belongs to you. No account, no cloud, no other user's data.</div>
+      <div class="notice">Each install has its own database on this phone. Uninstalling the app removes the internal database, so keep this .svault file in Files or another safe place. The file is unreadable without your PIN.</div>
+      <div class="notice" id="backupStatus">No vault file has been saved yet.</div>
+      <button class="sheet-btn primary" style="width:100%;padding:14px" id="exportBackupBtn">Save encrypted vault file</button>
+      <label class="import-label" for="importBackupInput" style="margin-top:9px">Choose vault file (.svault)</label>
+      <input type="file" id="importBackupInput" accept=".svault,application/json" hidden />
+      <button class="sheet-btn" style="width:100%;padding:12px;margin-top:9px" id="importBackupBtn" disabled>Restore from vault file</button>
+    </div>
+
+    <div class="sheet" id="aiSheet">
+      <div class="grip"></div>
+      <h3>AI assistant</h3>
+      <div class="sub">Connect a server you control. The API key stays on the server.</div>
+      <div class="notice">Without a server, the assistant answers from your vault metadata and document text on-device. When connected, your question and relevant vault context are sent to that server; nothing is sent otherwise. The app never invents an AI answer.</div>
+      <div class="field"><label>Server URL</label><input id="aiEndpoint" type="url" placeholder="https://your-server.example" maxlength="300" /></div>
+      <div class="field"><label>App access token (optional)</label><input id="aiToken" type="password" maxlength="300" placeholder="Bearer token configured on your server" /></div>
+      <div class="error-text" id="aiTestResult"></div>
+      <button class="sheet-btn primary" style="width:100%;padding:14px" id="saveAiBtn">Save connection</button>
+      <div class="sheet-actions" style="margin-top:9px">
+        <button class="sheet-btn" id="testAiBtn">Test connection</button>
+        <button class="sheet-btn" id="clearAiBtn">Use on-device only</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="securitySheet">
+      <div class="grip"></div>
+      <h3>Security center</h3>
+      <div class="sub">Only protections that are actually active are marked Active. Server and native features are not faked.</div>
+      <div class="security-list" id="securityList"></div>
+      <div class="notice" id="securityDevice"></div>
+      <button class="sheet-btn" style="width:100%;padding:12px;margin-top:9px" id="securityLockBtn">Lock vault now</button>
+    </div>
+
+    <div class="sheet" id="confirmSheet">
+      <div class="grip"></div>
+      <h3 id="confirmTitle">Confirm</h3>
+      <div class="sub" id="confirmText">This action cannot be undone.</div>
+      <div class="sheet-actions">
+        <button class="sheet-btn" id="confirmCancel">Cancel</button>
+        <button class="sheet-btn primary" id="confirmOk">Confirm</button>
+      </div>
+    </div>
+
+    <div class="sheet" id="convertSheet">
+      <div class="grip"></div>
+      <h3>Convert document</h3>
+      <div class="sub" id="convertSub">Convert the first PDF page or image to JPG / PNG</div>
+      <div class="seg" id="convertFormat">
+        <button class="active" data-fmt="png">PNG</button>
+        <button data-fmt="jpg">JPG</button>
+      </div>
+      <div class="field" id="qualityField">
+        <label>JPG quality <span id="qualityVal">92</span>%</label>
+        <input type="range" id="convertQuality" min="60" max="100" value="92" style="width:100%" />
+      </div>
+      <button class="sheet-btn primary" id="convertBtn" style="width:100%;padding:14px">Convert page 1</button>
+      <div id="convertResult" style="display:none;margin-top:12px">
+        <img id="convertPreview" style="width:100%;border-radius:14px;border:1px solid rgba(0,0,0,.08)" alt="Converted preview" />
+        <a class="sheet-btn primary" id="convertDownload" style="width:100%;padding:14px;margin-top:10px;justify-content:center" download>Download image</a>
+      </div>
+    </div>
+
+    <div class="lock-screen" id="lockScreen">
+      <div class="login">
+        <div class="login-top">
+          <div class="brand">
+            <span class="brand-mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            </span>
+            Student Vault
+          </div>
+          <span class="login-secure">AES-256</span>
+        </div>
+
+        <div class="login-body setup" id="setupPane" style="display:none">
+          <div class="bio-avatar" style="margin-top:2px"><span id="setupAvatar">SV</span></div>
+          <h3>Create your vault</h3>
+          <p class="login-sub">No account, no cloud. Your documents stay encrypted on this phone.</p>
+          <div class="setup-form">
+            <div class="field"><label>Full name</label><input id="setupName" maxlength="80" autocomplete="name" placeholder="Your name" /></div>
+            <div class="setup-grid">
+              <div class="field"><label>6-digit PIN</label><input id="setupPin" type="password" inputmode="numeric" maxlength="6" class="pin-input" autocomplete="new-password" /></div>
+              <div class="field"><label>Confirm PIN</label><input id="setupPin2" type="password" inputmode="numeric" maxlength="6" class="pin-input" autocomplete="new-password" /></div>
+            </div>
+            <div class="form-hint">Course, university and email can be added later in Account. The PIN derives the encryption key and is never stored; keep your recovery code safe.</div>
+            <div class="error-text" id="setupErr"></div>
+            <button class="sheet-btn primary setup-cta" id="createVaultBtn">Create encrypted vault</button>
+            <button class="link-btn" id="restoreOnSetupBtn">I have an encrypted backup</button>
+          </div>
+        </div>
+
+        <div class="login-body" id="bioPane" style="display:none">
+          <div class="bio-avatar"><span id="lockAvatar">SV</span>
+            <span class="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+          </div>
+          <h3>Welcome back</h3>
+          <p class="login-sub" id="lockSub">Your vault is locked</p>
+          <button class="bio-btn" id="passkeyBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 11a3 3 0 0 0-3 3c0 2 0 3 1 4"/><path d="M12 11a3 3 0 0 1 3 3v2"/><path d="M6.5 17.5c-.5-1.2-.5-2.4-.5-3.5a6 6 0 0 1 12 0c0 1.2 0 2.6-.6 4"/><path d="M3.5 15c-.3-1.3-.5-2.2-.5-3a9 9 0 0 1 18 0c0 2-.2 4-.8 5.5"/><path d="M9 21c.4-.6.6-1.3.7-2"/></svg>
+            <span id="passkeyLabel">Unlock with passkey</span>
+          </button>
+          <div class="bio-note" id="passkeySub">Use your device biometrics</div>
+          <div class="auth-err" id="authErr"></div>
+          <button class="login-link" id="usePinBtn">Use PIN instead</button>
+        </div>
+
+        <div class="login-body" id="pinPane" style="display:none">
+          <div class="pin-avatar avatar" id="pinAvatar">SV</div>
+          <h3 class="pin-title" id="pinTitle">Enter your PIN</h3>
+          <p class="pin-sub" id="pinSub">6-digit code to unlock</p>
+          <div class="dots" id="pinDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="keypad" id="keypad">
+            <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+            <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+            <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+            <button class="blank" aria-hidden="true" tabindex="-1"></button><button data-key="0">0</button><button data-key="del" aria-label="Delete">⌫</button>
+          </div>
+          <div class="auth-err" id="pinErr"></div>
+          <div class="lock-hint" id="pinHint">Your PIN never leaves this device</div>
+          <button class="login-link" id="forgotPinBtn">Forgot PIN? Use recovery code</button>
+          <button class="login-link" id="useBioBtn" style="display:none">Use passkey instead</button>
+        </div>
+
+        <div class="login-body recovery-pane" id="recoveryPane" style="display:none">
+          <div class="bio-avatar" style="margin-top:8px"><span>RC</span></div>
+          <h3>Recover your vault</h3>
+          <p class="login-sub">Enter the recovery code you saved when you created the vault.</p>
+          <div class="field"><label>Recovery code</label><input id="recoveryInput" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" autocomplete="off" /></div>
+          <div class="error-text" id="recoveryErr"></div>
+          <button class="sheet-btn primary" style="width:100%;padding:14px" id="recoverBtn">Recover vault</button>
+          <button class="login-link" id="backToPinBtn">Back to PIN</button>
+        </div>
+
+        <div class="login-footer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          AES-256-GCM · data stays on your device
+        </div>
+      </div>
+    </div>
+
+    <div class="viewer" id="viewer">
+      <div class="viewer-bar">
+        <button class="viewer-btn" id="viewerClose" aria-label="Close">Close</button>
+        <div class="viewer-title" id="viewerTitle">Document</div>
+        <a class="viewer-btn" id="viewerDownload" download>Download</a>
+      </div>
+      <div class="viewer-body" id="viewerBody"></div>
+    </div>
+
+    <div class="pdf-password" id="pdfPasswordModal" aria-hidden="true">
+      <div class="pdf-password-card">
+        <div class="pdf-password-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        </div>
+        <h3>Protected PDF</h3>
+        <p id="pdfPasswordText">This document needs a password.</p>
+        <input id="pdfPasswordInput" type="password" placeholder="Document password" autocomplete="off" maxlength="200" />
+        <div class="error-text" id="pdfPasswordErr"></div>
+        <div class="sheet-actions">
+          <button class="sheet-btn" id="pdfPasswordCancel" type="button">Cancel</button>
+          <button class="sheet-btn primary" id="pdfPasswordUnlock" type="button">Unlock</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  </div>
+</div>
+
+<script src="vendor/pdf.min.js?v=2.8"></script>
+<script src="js/vault-core.js?v=2.8"></script>
+<script src="js/app.js?v=2.8"></script>
+</body>
+</html>
+
+
+
+
+
+

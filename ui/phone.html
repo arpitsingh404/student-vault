@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Student Vault - Phone preview</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(900px 500px at 20% 0%, #EDE9FB 0%, #F6F4FB 55%, #EFECF8 100%);
+    font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+  }
+  .frame {
+    width: 390px; height: 844px; border-radius: 40px; overflow: hidden;
+    box-shadow: 0 40px 90px rgba(30, 20, 80, .28), 0 0 0 10px #14121f, 0 0 0 12px #2a2740;
+    background: #fff; position: relative;
+    transform: scale(0.86);
+    transform-origin: center center;
+  }
+  @media (max-height: 800px) { .frame { transform: scale(0.74); } }
+  iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+  .label {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: #8b86a8; font-weight: 700;
+  }
+</style>
+</head>
+<body>
+  <div class="frame"><iframe id="app" src="index.html" title="Student Vault app preview"></iframe></div>
+  <div class="label">Student Vault - 390 x 844 preview</div>
+  <script>
+    const frame = document.getElementById('app');
+    window.appDoc = () => frame.contentDocument;
+    window.appWin = () => frame.contentWindow;
+  </script>
+</body>
+</html>

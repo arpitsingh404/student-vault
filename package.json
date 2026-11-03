@@ -1,0 +1,11 @@
+{
+  "name": "student-vault",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Encrypted local-first student document vault, reminders and job tracker",
+  "scripts": {
+    "start:web": "python -m http.server 4322 --bind 127.0.0.1 --directory ui",
+    "start:ai": "powershell -ExecutionPolicy Bypass -File scripts/start-ai.ps1",
+    "build:apk": "powershell -ExecutionPolicy Bypass -File scripts/build-apk.ps1"
+  }
+}
