@@ -2121,7 +2121,7 @@
         data: C.b64encode(file.data)
       }))
     };
-    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(payload)], { type: 'application/octet-stream' });
     if (saveHandle) {
       await writeSaveHandle(saveHandle, blob);
     } else {
