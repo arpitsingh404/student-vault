@@ -46,9 +46,13 @@ ui/
   vendor/             PDF.js
 server/
   ai-proxy.mjs        optional AI proxy; provider key stays server-side
+android/
+  AndroidManifest.xml native WebView shell (versionCode 2)
+  src/.../MainActivity.java  local asset server + file picker + NativeVault save bridge
+  build-native.ps1    javac + d8 + aapt2 + zipalign + apksigner
 scripts/
-  pack_apk.py         replaces Capacitor web assets in the base APK
-  build-apk.ps1       zipalign + sign + verify
+  pack_apk.py         legacy Capacitor base-APK packaging helper
+  build-apk.ps1       legacy wrapper build
 ```
 
 ### Data model
@@ -68,15 +72,15 @@ Open `http://127.0.0.1:4322/` or `http://localhost:4322/`. Create a vault with a
 
 ## Build the APK
 
-The prebuilt APK is published in GitHub Releases. To rebuild the Android wrapper locally, place the supplied `StudentVault-debug.apk` base shell next to the build script (it is not committed because it is a binary build artifact). The script replaces its `assets/public` payload, zipaligns it, and signs it with the Android debug key.
+The prebuilt APK is published in GitHub Releases. The native shell is in `android/` and serves the web assets from a local loopback server, so the app keeps the same `http://127.0.0.1:47123` origin across launches. It exposes a `NativeVault.saveFile` bridge that writes to `Downloads/StudentVault` using Android MediaStore.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/build-apk.ps1
+powershell -ExecutionPolicy Bypass -File android/build-native.ps1
 ```
 
-Output: `StudentVault.apk`.
+Output: `StudentVault-native.apk`.
 
-For a production release, use your own release keystore and increment `versionCode`. The included APK uses the debug key, which is not suitable for Play Store distribution.
+Requirements: JDK, Android SDK platform 35/36, build-tools, and the Android debug keystore. The release APK is debug-signed for sideloading. For Play Store distribution, use a release keystore, bump `versionCode`, and wire Play Integrity.
 
 ## Vault file and ownership
 

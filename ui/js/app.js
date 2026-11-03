@@ -141,8 +141,33 @@
     await writable.close();
   }
 
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = String(reader.result || '');
+        resolve(result.includes(',') ? result.split(',').pop() : result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   async function saveOrShare(blob, name) {
     if (!blob) return false;
+    if (window.NativeVault && typeof window.NativeVault.saveFile === 'function') {
+      try {
+        const base64 = await blobToBase64(blob);
+        const result = window.NativeVault.saveFile(name || 'student-vault-file', base64, blob.type || 'application/octet-stream');
+        if (String(result || '').startsWith('ok')) return true;
+        toast('Could not save the file to Downloads.');
+        return false;
+      } catch (error) {
+        console.error('Native save failed', error);
+        toast('Could not save the file.');
+        return false;
+      }
+    }
     const file = new File([blob], name || 'student-vault-file', { type: blob.type || 'application/octet-stream' });
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
@@ -2075,7 +2100,9 @@
 
   async function exportBackup() {
     const fileName = 'student-vault-' + today() + '.svault';
-    const saveHandle = await pickSaveFile(fileName, 'application/json', 'Student Vault encrypted backup', '.svault');
+    const saveHandle = (window.NativeVault && typeof window.NativeVault.saveFile === 'function')
+      ? null
+      : await pickSaveFile(fileName, 'application/json', 'Student Vault encrypted backup', '.svault');
     if (saveHandle === 'cancelled') return;
     await persist();
     const stateRecord = await C.dbGet('kv', 'state');
